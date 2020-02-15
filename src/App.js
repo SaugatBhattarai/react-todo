@@ -4,31 +4,23 @@ import Todos from './components/Todos';
 import Header from './components/layout/Header';
 import AddTodo from './components/AddTodo';
 import About from './components/pages/About';
-import uuid from 'uuid';
-
+// import uuid from 'uuid';
+import axios from 'axios';
 import './App.css';
+
 
 class App extends Component {
   state = {
-    todos: [
-      {
-        id:uuid.v4(),
-        title: "Take me to the trash",
-        completed: false
-      },
-      {
-        id:uuid.v4(),
-        title: "Dinner with friends",
-        completed: false
-      },
-      {
-        id:uuid.v4(),
-        title: "Meeting with boss",
-        completed: true
-      },
-    ]
+    todos: []
   }
 
+  componentDidMount() {
+    axios.get('https://jsonplaceholder.typicode.com/todos?_limit=10')
+    .then(res => this.setState({todos: res.data}))
+   
+  }
+
+  
   //if you use arrow funtion you dont' have to bind
   //Toggle Complete
   markComplete = (id) => {
@@ -44,22 +36,34 @@ class App extends Component {
 
   //Delete Todo
   delTodo = (id) => {
-    console.log(id);
+    // console.log(id);
     // console.log(...this.state.todos);
-    this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)] });
+    axios.delete(`https://jsonplaceholder.typicode.com/todos/ ${id}`)
+    .then(res => this.setState({ todos: [...this.state.todos.filter(todo => todo.id !== id)] }));
+    
   }
 
     //Add Todo
     addTodo = (title) => {
-      const newTodo = {
-        id: uuid.v4(),
-        title,
-        completed: false
+      // const newTodo = {
+      //   id: uuid.v4(),
+      //   title,
+      //   completed: false
+      // }
+      try {
+        axios.post('https://jsonplaceholder.typicode.com/todos',{
+          title,
+          completed:false
+        }).then(res => this.setState({todos: [...this.state.todos, res.data]}));
       }
-      this.setState({ todos: [...this.state.todos, newTodo]});
+      catch(err) {
+        console.log('from catch... '+err);
+      }
+
     }
 
   render() {
+    console.log(this.state.todos);
     // console.log(this.state.todos);
       return (
         <Router>
